@@ -36,6 +36,9 @@ assets/      tools/
 
 ## Owner decisions (newest first)
 
+**2026-11-26**
+- **Roster cut to two streamers: Steveeeyyy and IShowSpeed.** Dom, KreekCraft, Dylan Page and SypherPK are dropped. Their studio records are moved to `studio/db_export_removed/` (restorable); their assets (KreekCraft overlay, Dom example edits, GTA VI logo) stay in `assets/` untouched. This overrides the master prompt's Dom/KreekCraft/Steveeeyyy rotation.
+
 **2026-11-23**
 - **No emoji sticker pops in videos.** The Noto stickers stay in Assets for other uses, but none go into edits unless asked.
 - **No burned-in subtitles in the outlined Oswald style.** Edits go without subtitles until the owner picks a caption style. A short hook title in the top band is fine.
@@ -58,8 +61,8 @@ assets/      tools/
 
 **Rotation.** Alternate the two styles in use and flip each streamer every batch:
 
-- Batch 01: Dom Hype, KreekCraft Tabloid, Steveeeyyy Hype
-- Batch 02: Dom Tabloid, KreekCraft Hype, Steveeeyyy Tabloid
+- Batch 01: Steveeeyyy Hype, IShowSpeed Tabloid
+- Batch 02: Steveeeyyy Tabloid, IShowSpeed Hype
 
 A third style gets added when the owner has one. Record the style in the tracker's `thumb_style` column.
 
@@ -119,29 +122,8 @@ The studio's Upload Desk schedules every approved clip in Pacific time (`setting
 
 The studio's Campaign rules page is the source of truth. Re-check the live brief each batch. Highlights that change the edit or the thumbnail:
 
-**Dom × RUCKUS (unconfirmed)**
-- Paid-content disclosure opens every clip.
-- TikTok and Shorts pay; Instagram doesn't.
-- The posting account must post only GTA 6.
-- Submit within 30 min of posting.
-
-**KreekCraft (ClipLaunch)**
-- `KreekCraft Overlay.png` for the whole clip.
-- CTA and hashtags exactly as written.
-- Likes visible.
-
-**SypherPK (Fortnite / UEFN)**
-- No logos of any kind: thumbnail `"brand": false`, no `logo`, no overlays.
-- Caption has `#fortnitecreative #uefn` plus Sypher, Maddynf or Replays.
-- Footage only from the Nov 15 VOD timestamps.
-- Nothing negative about the creators or Epic.
-
-**Dylan Page (GTA VI Marathon)**
-- No added watermarks or third-party branding: thumbnail `"brand": false`, no GTA VI `logo`.
-- Dylan stays the main focus the whole clip: memes picture-in-picture or sound only, never full-screen cutaways.
-- A new, accurate thumbnail for every clip.
-- `#DylanPage`.
-- Footage from the marathon from Nov 19.
+**Steveeeyyy**
+- No paid campaign confirmed. Verify identity, footage rights and reposting terms before posting as a paid clip.
 
 **IShowSpeed × Expedia ($8,000)**
 - Footage only from the Nov 6 stream, 2:46:29 to the end.
