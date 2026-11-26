@@ -158,7 +158,7 @@ The studio's Campaign rules page is the source of truth. Re-check the live brief
 
 ## The studio (control room)
 
-Private page: https://claude.ai/artifact/ScqKbuLk3EXQ4kEHvEhFBS (source: `studio/vice-studio.html`). It follows the Prism Studio layout with Vice Unfiltered's own look:
+Private page: https://claude.ai/artifact/5AXMPAZV6DZKhX873KXRni (rebuilt 2026-11-26; the original ScqKbuLk3EXQ4kEHvEhFBS is not shared with this account) (source: `studio/vice-studio.html`). It follows the Prism Studio layout with Vice Unfiltered's own look:
 
 - **Home:** a poster per streamer.
 - **Streamer room:** a strip of the other streamers, the header, the batch bar, *Ready to post* (one card per account) and *In the edit*.
