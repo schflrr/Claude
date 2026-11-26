@@ -135,14 +135,17 @@ The studio's Campaign rules page is the source of truth. Re-check the live brief
 - TikTok, Reels and Shorts only.
 - Streamer/travel-niche account only.
 
-**GTA 6 x Foltyn (Content Rewards), unconfirmed**
-- Search snapshots only (2026-11-26): about $1.50 per 1K views, TikTok and YouTube, $5,000 budget.
-- Allowed streams, hashtags, CTA, logo rules and disclosure: still needed from the live brief.
+**GTA 6 x Foltyn (Content Rewards)** (brief from owner, 2026-11-26)
+- GTA 6 content only, from Foltyn's channel linked in the campaign guidelines.
+- Tag Foltyn in the first line of the caption.
+- No negativity toward Foltyn.
+- Pay unconfirmed (snapshots): about $1.50 per 1K views, TikTok and YouTube, $5,000 budget.
 
-**BenDaDonnn x Puffco GTA 6 (Content Rewards), unconfirmed**
-- Search snapshots only (2026-11-26): $1 per 1K views, $2 min / $400 max per clip, $10,000 budget; TikTok, YouTube, Instagram, X, Facebook.
-- Puffco is a cannabis-vaporizer brand: check platform rules on drug/vape promotion, age-gating and paid disclosure.
-- Allowed streams, hashtags, CTA, Puffco mention/logo rules and disclosure: still needed from the live brief.
+**BenDaDonnn x Puffco GTA 6 (Content Rewards)** (brief from owner, 2026-11-26)
+- Only Ben's Puffco GTA stream, posted after the campaign went live. Puffco (device, jar or shoutout) must appear somewhere in the clip.
+- Qualifies: genuine positive hits and in-session reactions, big clouds, jar reactions (smelling the hash), high first reacts to GTA, hyped moments (Ben or chat), Hash Butler tips/lore/banter, positive Puffco shoutouts, GTA x Puffco crossover.
+- Doesn't qualify: complaints, bad hits or device frustration, anything negative about Puffco or the sponsorship, highly offensive content, gambling (slots, blackjack), botting.
+- Pay unconfirmed (snapshots): $1 per 1K views, $2 min / $400 max per clip, $10,000 budget. Hashtags, CTA and disclosure wording still needed.
 
 **All campaigns**
 - English text only.
