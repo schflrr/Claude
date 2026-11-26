@@ -135,10 +135,13 @@ The studio's Campaign rules page is the source of truth. Re-check the live brief
 - TikTok, Reels and Shorts only.
 - Streamer/travel-niche account only.
 
-**GTA 6 x Foltyn (Content Rewards)** (brief from owner, 2026-11-26)
-- GTA 6 content only, from Foltyn's channel linked in the campaign guidelines.
-- Tag Foltyn in the first line of the caption.
-- No negativity toward Foltyn.
+**GTA 6 x Foltyn (Content Rewards)** (Clipper Guide from owner, 2026-11-26)
+- Source: only NEW GTA 6 videos on youtube.com/@FoltynGaming3/videos. No GTA 5.
+- First caption line tags Foltyn: TikTok @klfoltyn, Instagram @realfoltyn, YouTube @FoltynFamily.
+- No external logos of any kind (thumbnail `"brand": false`, no `logo`). No negativity toward Foltyn.
+- Minimum 0.75% engagement for approval; don't post to low-engagement accounts. No story shares or collab posts.
+- No repeats, stolen clips or stolen/reworded captions: a reused clip needs a new edit and a unique caption.
+- All campaigns (their rules): no low-quality or rushed posts; check provided cut-downs for cursing and logos.
 - Pay unconfirmed (snapshots): about $1.50 per 1K views, TikTok and YouTube, $5,000 budget.
 
 **BenDaDonnn x Puffco GTA 6 (Content Rewards)** (brief from owner, 2026-11-26)
