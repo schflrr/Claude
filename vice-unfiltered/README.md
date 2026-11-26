@@ -37,6 +37,7 @@ assets/      tools/
 ## Owner decisions (newest first)
 
 **2026-11-26**
+- **Foltyn added (GTA 6 x Foltyn campaign, rules unconfirmed).**
 - **Roster cut to two streamers: Steveeeyyy and IShowSpeed.** Dom, KreekCraft, Dylan Page and SypherPK are dropped. Their studio records are moved to `studio/db_export_removed/` (restorable); their assets (KreekCraft overlay, Dom example edits, GTA VI logo) stay in `assets/` untouched. This overrides the master prompt's Dom/KreekCraft/Steveeeyyy rotation.
 
 **2026-11-23**
@@ -133,6 +134,10 @@ The studio's Campaign rules page is the source of truth. Re-check the live brief
 - Only the Expedia logo allowed (thumbnail `"brand": false`, `"logo"` = an Expedia file). Files are in `assets/BRAND_USER/expedia/`: `*_white-text.png` on dark backgrounds (Hype), `*_dark-text.png` on light ones (Tabloid).
 - TikTok, Reels and Shorts only.
 - Streamer/travel-niche account only.
+
+**GTA 6 x Foltyn (Content Rewards), unconfirmed**
+- Search snapshots only (2026-11-26): about $1.50 per 1K views, TikTok and YouTube, $5,000 budget.
+- Allowed streams, hashtags, CTA, logo rules and disclosure: still needed from the live brief.
 
 **All campaigns**
 - English text only.
