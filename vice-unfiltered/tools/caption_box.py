@@ -19,7 +19,22 @@ EMOJI = "/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf"
 EMO_RE = re.compile("([\U0001F000-\U0001FAFF☀-➿⬀-⯿️‍]+)")
 
 
+CUSTOM = {"\U0001F480": os.path.join(ROOT, "assets", "USER_ADDED", "emoji", "skull.png")}  # owner-supplied skull
+
+
 def emoji_img(ch, px):
+    if ch in CUSTOM and os.path.exists(CUSTOM[ch]):
+        im = Image.open(CUSTOM[ch]).convert("RGBA")
+        im = im.resize((round(im.width * px / im.height), px), Image.LANCZOS)
+        from PIL import ImageFilter
+        pad = 4
+        out = Image.new("RGBA", (im.width + 2 * pad, im.height + 2 * pad), (0, 0, 0, 0))
+        a = Image.new("L", out.size, 0)
+        a.paste(im.getchannel("A"), (pad, pad))
+        ring = a.point(lambda v: 255 if v > 90 else 0).filter(ImageFilter.MaxFilter(5)).filter(ImageFilter.GaussianBlur(0.6))
+        out.paste(Image.new("RGBA", out.size, (40, 40, 48, 255)), (0, 0), ring)
+        out.alpha_composite(im, (pad, pad))
+        return out
     f = ImageFont.truetype(EMOJI, 109)
     tmp = Image.new("RGBA", (300, 160), (0, 0, 0, 0))
     ImageDraw.Draw(tmp).text((8, 8), ch, font=f, embedded_color=True)
@@ -40,7 +55,7 @@ def emoji_img(ch, px):
 def measure(tokens, f, epx):
     w = 0
     for t in tokens:
-        w += sum(emoji_img(c, epx).width + 8 for c in EMO_RE.findall(t)) if EMO_RE.fullmatch(t) else f.getlength(t)
+        w += sum(emoji_img(c, epx).width + 8 for c in [ch for ch in t if ch not in '\ufe0f\u200d']) if EMO_RE.fullmatch(t) else f.getlength(t)
     return w
 
 
@@ -79,7 +94,7 @@ def render(text, out, width=900, size=64):
         x = (1080 - w) / 2
         for t in toks:
             if EMO_RE.fullmatch(t):
-                for c in EMO_RE.findall(t):
+                for c in [ch for ch in t if ch not in '\ufe0f\u200d']:
                     e = emoji_img(c, epx)
                     canvas.alpha_composite(e, (int(x), int(y + (lh - e.height) / 2)))
                     x += e.width + 8
