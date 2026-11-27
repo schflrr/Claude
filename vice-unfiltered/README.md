@@ -37,6 +37,8 @@ assets/      tools/
 ## Owner decisions (newest first)
 
 **2026-11-27**
+- **TikTok thumbnails, zoom out:** TikTok's profile grid crops the 9:16 cover to roughly the middle 3:4. Keep the headline, the face and the key action inside that centre area, with room to spare top and bottom. Every thumbnail prompt says so.
+- **Key-moment subtitles:** going forward, subtitle only the key lines (the hook, the punchline, a quotable line), never the whole clip. Words must be verified against the audio. Style: the approved white rounded box (black Montserrat SemiBold) in the lower third over the gameplay. No outlined text.
 - **Caption box timing:** on clips longer than 20 s, show the narrator caption box for the first 5 s only (job `overlay` with `"to": 5.0`). Shorter clips keep it the whole way.
 - **Vary the assets:** rotate through the newer sounds and meme clips (oh-no laugh, club-kid dance, Friday "daaamn", WWE shocked fan, screaming woodchuck, Here we go again, Dafoe looking up) instead of the same explosion/shocked hits every clip. Video memes go in with `insert_video` (own audio unless `"audio": false`).
 - **Game subtitles:** check every clip's burned-in game subtitles for swearing (OCR pass) and blur the subtitle strip at those moments.
