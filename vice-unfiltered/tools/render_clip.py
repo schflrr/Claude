@@ -54,7 +54,8 @@ FONTS = {
     "bebas": os.path.join(ROOT, "assets/fonts/bebas-neue-latin-400-normal.woff"),
 }
 W, H, SR = 1080, 1920, 48000
-INSERTS = ("insert_image", "static", "freeze", "deal_with_it")
+INSERTS = ("insert_image", "insert_video", "static", "freeze", "deal_with_it")
+NO_ONSET = set()  # sfx sources that must not have leading silence trimmed (video-meme audio stays in sync)
 SFX_TARGET_LUFS = -14.0
 SFX_FADES = {}
 
@@ -416,6 +417,18 @@ def main():
             ff(*inputs, "-filter_complex", chain, "-map", f"[{last}]", "-frames:v", str(n), *venc, path)
             edl.append(["base", f"{t0:.3f}", f"{t1:.3f}", f"{out_f / fps:.3f}", f"{(out_f + n) / fps:.3f}",
                         f"source {src_time(p['f0']):.3f}-{src_time(p['f0']) + n / fps:.3f}s"])
+        elif p["kind"] == "insert_video":  # meme video cutaway: contain-fit over a blurred fill of itself
+            e = p["ev"]
+            vid = resolve(e["file"], "video")
+            fcv = (f"[0:v]fps={fps},split[a][b];[a]scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},"
+                   f"boxblur=30:2,eq=brightness=-0.1[bg];[b]scale={W}:{H}:force_original_aspect_ratio=decrease:flags=lanczos[fg];"
+                   f"[bg][fg]overlay=(W-w)/2:(H-h)/2,format=yuv420p,setsar=1[v]")
+            ff("-ss", f'{float(e.get("start", 0)):.3f}', "-i", vid, "-filter_complex", fcv, "-map", "[v]", "-an",
+               "-frames:v", str(n), *venc, path)
+            edl.append(["insert_video", f'{e["at"]:.3f}', f'{e["at"]:.3f}', f"{out_f / fps:.3f}",
+                        f"{(out_f + n) / fps:.3f}", os.path.relpath(vid, ROOT)])
+            notes.append(f'Video insert {os.path.relpath(vid, ROOT)} at output {out_f / fps:.3f}s for {n / fps:.3f}s'
+                         + (" with its own audio" if e.get("audio", True) else " (muted)"))
         elif p["kind"] == "insert_image":
             e = p["ev"]
             img = resolve(e["file"])
@@ -548,6 +561,10 @@ def main():
     places = []
     for p in pieces:
         e = p.get("ev")
+        if p["kind"] == "insert_video" and e.get("audio", True):
+            vf_ = resolve(e["file"], "video")
+            NO_ONSET.add(vf_)
+            places.append((p["out0"] / fps, vf_, e.get("gain_db", 0), p["n"] / fps, e.get("duck_db", -60), "insert"))
         if p["kind"] == "insert_image" and e.get("sfx"):
             places.append((p["out0"] / fps, e["sfx"], e.get("sfx_gain_db", 0), p["n"] / fps, None, "insert"))
         if p["kind"] == "freeze" and e.get("sfx"):
@@ -569,7 +586,7 @@ def main():
             continue
         seen.add(key)
         p_, arr, on, L = load_sfx(fname)
-        clip = arr[int(on * SR):]
+        clip = arr[int((0 if p_ in NO_ONSET or fname in NO_ONSET else on) * SR):]
         if maxlen:
             clip = clip[: int(maxlen * SR)]
         g = (SFX_TARGET_LUFS - L if L is not None else 0) + gdb
@@ -645,7 +662,9 @@ def main():
         ov = os.path.join(tmp, "overlay.png")
         overlay_png(job["overlay"], ov)
         final_in += ["-loop", "1", "-framerate", str(fps), "-i", ov]
-        fc += f";[v0][2:v]overlay=0:0:shortest=0[v1]"
+        ov_to = job["overlay"].get("to")  # optional: show the overlay only from `from` to `to` (output seconds)
+        en_ = f":enable='between(t,{float(job['overlay'].get('from', 0)):.3f},{float(ov_to):.3f})'" if ov_to else ""
+        fc += f";[v0][2:v]overlay=0:0:shortest=0{en_}[v1]"
         last = "v1"
         notes.append(f'Overlay {job["overlay"]["file"]} visible for the whole output (incl. inserts/freezes), '
                      f'{job["overlay"].get("width", 700)}px wide centred at y={job["overlay"].get("y", 0.3)}')
