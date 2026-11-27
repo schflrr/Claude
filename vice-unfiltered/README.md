@@ -37,7 +37,7 @@ assets/      tools/
 ## Owner decisions (newest first)
 
 **2026-11-27**
-- **Tabloid Strip thumbnails retired.** Hype Reaction is the only style in use until the owner's new second style is added.
+- **Thumbnails: three new styles from the owner's references** — Comic Chaos (`comic`), Dark Mystery (`mystery`), Reaction Split (`split`). Tabloid Strip and Hype Reaction are retired (kept). Rotate the three per clip and pick the one that fits the moment.
 
 **2026-11-26**
 - **Foltyn and BenDaDonnn added (GTA 6 x Foltyn; BenDaDonnn x Puffco GTA 6), rules unconfirmed.**
@@ -58,8 +58,11 @@ assets/      tools/
 
 | Style | Template | Status | Look |
 |---|---|---|---|
+| Comic Chaos | `comic` | **In use** | Comic-print real frame, pink starburst, stacked yellow/white/red italic headline, yellow GTA 6 tag, outlined cut-out |
+| Dark Mystery | `mystery` | **In use** | Dark graded full-bleed frame, white+red headline with brush underline, red GTA 6 tag, yellow ring + arrow |
+| Reaction Split | `split` | **In use** | Vivid full-bleed gameplay, big glowing cut-out bottom-left, white+red headline across the bottom, GTA 6 on a red brush |
 | Tabloid Strip | `tabloid` | Retired 2026-11-27 (kept) | Full-bleed portrait, black torn headline slab (Anton), two-panel strip |
-| Hype Reaction | `hype` | **In use** | The owner's three references: real streamer cut-out with white rim and glow, Montserrat Black Italic headline with a neon key word, brush underline, emoji, bursts, speed lines, optional arrow, inset and logo |
+| Hype Reaction | `hype` | Retired 2026-11-27 (kept; folded into Reaction Split) | The owner's three references: real streamer cut-out with white rim and glow, Montserrat Black Italic headline with a neon key word, brush underline, emoji, bursts, speed lines, optional arrow, inset and logo |
 | Comic Pop Poster | `poster` | Retired (kept) | |
 | Color Block Cover | `blocks` | Retired (kept) | |
 

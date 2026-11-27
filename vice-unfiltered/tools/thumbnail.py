@@ -629,7 +629,231 @@ def t_hype(job, imgs, rng):
     return c
 
 
-TEMPLATES = {"poster": t_poster, "blocks": t_blocks, "tabloid": t_tabloid, "hype": t_hype}
+
+# ---------- 2026-11-27 styles: Comic Chaos, Dark Mystery, Reaction Split ----------
+# Layouts and type are modelled on the owner's three GTA 6 references, rebuilt for 9:16 from REAL frames.
+# Nothing here generates faces, people or lettering; every person is a real cut-out from the clip.
+def _grade(im, sat=1.0, con=1.0, bright=1.0):
+    from PIL import ImageEnhance
+    im = ImageEnhance.Color(im).enhance(sat)
+    im = ImageEnhance.Contrast(im).enhance(con)
+    return ImageEnhance.Brightness(im).enhance(bright)
+
+
+def _vignette(w, h, strength=0.75, power=1.6):
+    yy, xx = np.mgrid[0:h, 0:w]
+    v = np.sqrt(((xx - w / 2) / (w / 2)) ** 2 + ((yy - h / 2) / (h / 2)) ** 2) / math.sqrt(2)
+    a = np.clip(v ** power * strength * 255 * 1.4, 0, 255).astype(np.uint8)
+    lay = Image.new("RGBA", (w, h), (0, 0, 0, 255))
+    lay.putalpha(Image.fromarray(a))
+    return lay
+
+
+def _cutout(por, erase, max_h, max_w, outline=0, outline_color=(255, 255, 255), glow=None, glow_r=26, rng=None):
+    m = person_matte(por, erase)
+    por = decontaminate(por, m)
+    bb = m.point(lambda v: 255 if v > 40 else 0).getbbox() or (0, 0, por.width, por.height)
+    por, m = por.crop(bb), m.crop(bb)
+    s = min(max_h / por.height, max_w / por.width)
+    por = por.resize((round(por.width * s), round(por.height * s)), Image.LANCZOS)
+    if rng:
+        por = photo_finish(por, rng)
+    m = m.resize(por.size, Image.LANCZOS)
+    pad = max(outline, glow_r) + 30
+    cut = Image.new("RGBA", (por.width + 2 * pad, por.height + 2 * pad), (0, 0, 0, 0))
+    mm = Image.new("L", cut.size, 0)
+    mm.paste(m, (pad, pad))
+    solid = mm.point(lambda v: 255 if v > 110 else 0)
+    if glow:
+        halo = solid.filter(ImageFilter.MaxFilter(21)).filter(ImageFilter.GaussianBlur(glow_r))
+        cut.paste(Image.new("RGBA", cut.size, glow + (255,)), (0, 0), halo)
+    if outline:
+        rim = solid.filter(ImageFilter.MaxFilter(2 * outline + 1)).filter(ImageFilter.GaussianBlur(1.0))
+        sh = rim.filter(ImageFilter.MaxFilter(5))
+        cut.paste(Image.new("RGBA", cut.size, INK + (255,)), (0, 0), sh)
+        cut.paste(Image.new("RGBA", cut.size, outline_color + (255,)), (0, 0), rim)
+    body = Image.new("RGBA", cut.size, (0, 0, 0, 0))
+    body.paste(por.convert("RGBA"), (pad, pad))
+    body.putalpha(mm)
+    cut.alpha_composite(body)
+    return cut, pad
+
+
+def _line(text, max_w, max_size, top, bottom, stroke=13, shadow=True):
+    f = fit_font(MONT, text, max_w, max_size, min_size=70)
+    t = gradient_text(text, f, top, bottom, stroke=stroke)
+    if shadow:
+        t, _ = drop_shadow(t, 10, 14, 6, 190)
+    return t
+
+
+def _starburst(w, h, color, rng, spikes=18, inner=0.62, outline=10):
+    lay = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    d = ImageDraw.Draw(lay)
+    cx, cy = w / 2, h / 2
+    pts = []
+    for i in range(spikes * 2):
+        a = i * math.pi / spikes + rng.uniform(-0.05, 0.05)
+        r = (1.0 if i % 2 == 0 else inner) * rng.uniform(0.9, 1.0)
+        pts.append((cx + math.cos(a) * r * (w / 2 - outline), cy + math.sin(a) * r * (h / 2 - outline)))
+    d.polygon(pts, fill=INK + (255,))
+    shrink = [(cx + (x - cx) * 0.96, cy + (y - cy) * 0.96) for x, y in pts]
+    d.polygon(shrink, fill=color + (255,))
+    return lay
+
+
+def _comicize(im, rng):
+    """Comic-print treatment of a REAL frame: punchier colour, ink edges, light posterize. No generation."""
+    from PIL import ImageOps
+    im = ImageOps.autocontrast(im, cutoff=1)
+    im = _grade(im, 1.55, 1.18, 1.04)
+    im = ImageOps.posterize(im, 5)
+    edges = im.convert("L").filter(ImageFilter.FIND_EDGES).point(lambda v: 255 if v > 38 else 0)
+    edges = edges.filter(ImageFilter.MaxFilter(3))
+    ink = Image.new("RGB", im.size, INK)
+    return Image.composite(ink, im, edges.point(lambda v: v * 150 // 255))
+
+
+def _gta_tag(text, style, rng):
+    f = font(MONT, 96)
+    if style == "yellow":
+        t = text_layer(text, f, INK)
+        box = Image.new("RGBA", (t.width + 70, t.height + 60), (0, 0, 0, 0))
+        d = ImageDraw.Draw(box)
+        d.rectangle([0, 0, box.width - 1, box.height - 1], fill=INK + (255,))
+        d.rectangle([7, 7, box.width - 8, box.height - 8], fill=YELLOW + (255,))
+        box.alpha_composite(t, (35, 22))
+        br = brush(int(t.width * 0.9), 26, (230, 30, 130), rng)
+        box.alpha_composite(br, (45, box.height - 40))
+        return box.rotate(5, resample=Image.BICUBIC, expand=True)
+    if style == "redbox":
+        t = text_layer(text, f, INK)
+        w, h = t.width + 90, t.height + 46
+        box = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+        ImageDraw.Draw(box).polygon([(26, 0), (w, 0), (w - 26, h), (0, h)], fill=(230, 28, 36, 255))
+        box.alpha_composite(t, (45, 16))
+        return box
+    # "redbrush": white italic text on a rough red brush stroke
+    t = gradient_text(text, f, (255, 255, 255), (215, 215, 215), stroke=10)
+    w, h = t.width + 110, t.height + 40
+    box = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    d = ImageDraw.Draw(box)
+    for k in range(9):
+        y0 = 10 + k * (h - 20) / 9
+        d.rectangle([rng.uniform(0, 22), y0, w - rng.uniform(0, 22), y0 + (h - 20) / 9 + 2], fill=(222, 22, 30, 255))
+    box.alpha_composite(t, (55, 20))
+    return box.rotate(4, resample=Image.BICUBIC, expand=True)
+
+
+def _xy(p):
+    return (p[0] * W, p[1] * H)
+
+
+def t_comic(job, imgs, rng):
+    main = imgs["main"]
+    c = _comicize(cover(main, W, H), rng).convert("RGBA")
+    c.alpha_composite(Image.new("RGBA", (W, H), (230, 30, 150, 46)))
+    c.alpha_composite(halftone(W, H, (255, 60, 170), spacing=16, rmax=5.5, direction=(-1, -1), alpha=150))
+    hl = [s.upper() for s in job["headline"]][:3]
+    burst = _starburst(1060, 900, (240, 40, 150), rng, spikes=int(job.get("spikes", 16)))
+    c.alpha_composite(burst, (10, 90))
+    fills = [((255, 240, 40), (255, 190, 0)), ((255, 255, 255), (225, 225, 225)), ((255, 60, 50), (205, 12, 20))]
+    if len(hl) == 2:
+        fills = [fills[0], fills[2]]
+    layer = Image.new("RGBA", (W + 200, 1000), (0, 0, 0, 0))
+    y = 0
+    for i, line in enumerate(hl):
+        t = _line(line, 900, 200 if len(hl) == 3 else 230, *fills[i], stroke=15)
+        layer.alpha_composite(t, ((layer.width - t.width) // 2, y))
+        y += t.height - 70
+    layer = layer.crop(layer.getbbox()).rotate(6, resample=Image.BICUBIC, expand=True)
+    c.alpha_composite(layer, ((W - layer.width) // 2, 90 + 450 - layer.height // 2))
+    if job.get("tag", "GTA 6"):
+        tg = _gta_tag(job.get("tag", "GTA 6"), "yellow", rng)
+        c.alpha_composite(tg, (W - tg.width - 24, 24))
+    if "portrait" in imgs:
+        cut, pad = _cutout(imgs["portrait"], job.get("erase"), int(job.get("portrait_height", 860)), 900,
+                           outline=int(job.get("outline", 14)), rng=rng)
+        x = int(job.get("portrait_x", -30)) - pad
+        c.alpha_composite(cut, (x, H - cut.height + pad + int(job.get("portrait_drop", 30))))
+        bursts(c, x + pad + cut.width - 2 * pad - 40, H - cut.height + pad + 220, YELLOW, rng, size=110, angle0=-70)
+    if job.get("arrow"):
+        a = job["arrow"]
+        arrow(c, _xy(a["from"]), _xy(a["to"]), bend=a.get("bend", 0.3))
+    return c
+
+
+def t_mystery(job, imgs, rng):
+    main = imgs["main"]
+    g = _grade(cover(main, W, H), 0.85, 1.22, float(job.get("brightness", 0.62)))
+    a = np.asarray(g).astype(np.float32)
+    lum = a.mean(2, keepdims=True) / 255
+    tint = np.array([20, 40, 70]) * (1 - lum) + np.array([255, 150, 60]) * lum * 0.12
+    g = Image.fromarray(np.clip(a * 0.9 + tint * 0.35, 0, 255).astype(np.uint8))
+    c = photo_finish(g, rng).convert("RGBA")
+    c.alpha_composite(_vignette(W, H, 0.95, 1.4))
+    l1, l2 = job["headline"][0].upper(), job["headline"][-1].upper()
+    t1 = _line(l1, 980, 210, (255, 255, 255), (205, 205, 205), stroke=0)
+    t2 = _line(l2, 980, 250, (255, 55, 45), (200, 10, 15), stroke=0)
+    c.alpha_composite(t1, (24, 70))
+    y2 = 70 + t1.height - 80
+    br = brush(int(min(980, t2.width * 0.95)), 42, (222, 22, 30), rng)
+    c.alpha_composite(br, (60, y2 + t2.height - 90))
+    c.alpha_composite(t2, (24, y2))
+    if job.get("circle"):
+        cx, cy, r = job["circle"]
+        cx, cy, r = cx * W, cy * H, r * W
+        d = ImageDraw.Draw(c)
+        d.ellipse([cx - r, cy - r * 0.85, cx + r, cy + r * 0.85], outline=INK, width=22)
+        d.ellipse([cx - r, cy - r * 0.85, cx + r, cy + r * 0.85], outline=(255, 226, 20), width=13)
+    if job.get("arrow"):
+        a = job["arrow"]
+        arrow(c, _xy(a["from"]), _xy(a["to"]), color=(255, 226, 20), bend=a.get("bend", -0.3))
+    if "portrait" in imgs:
+        cut, pad = _cutout(imgs["portrait"], job.get("erase"), int(job.get("portrait_height", 640)), 620, rng=rng)
+        c.alpha_composite(cut, (W - cut.width + pad + 10, H - cut.height + pad))
+    if job.get("tag", "GTA 6"):
+        tg = _gta_tag(job.get("tag", "GTA 6"), "redbox", rng)
+        c.alpha_composite(tg, (40, H - tg.height - 70))
+    return c
+
+
+def t_split(job, imgs, rng):
+    main = imgs["main"]
+    c = photo_finish(_grade(cover(main, W, H), 1.4, 1.12, 1.0), rng).convert("RGBA")
+    glow = hexrgb(job.get("glow", "#FF2A55"))
+    gl = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    ImageDraw.Draw(gl).ellipse([-500, 200, 700, 1600], fill=glow + (110,))
+    c.alpha_composite(gl.filter(ImageFilter.GaussianBlur(180)))
+    c.alpha_composite(_vignette(W, H, 0.6, 1.8))
+    cut, pad = _cutout(imgs["portrait"], job.get("erase"), int(job.get("portrait_height", 1200)), 1080,
+                       glow=glow, glow_r=34, rng=rng)
+    px = int(job.get("portrait_x", -60)) - pad
+    py = H - cut.height + pad + int(job.get("portrait_drop", 40))   # body runs off the bottom edge, no flat cut line
+    c.alpha_composite(cut, (px, py))
+    if job.get("tag", "GTA 6"):
+        tg = _gta_tag(job.get("tag", "GTA 6"), "redbrush", rng)
+        c.alpha_composite(tg, (W - tg.width - 20, 50))
+    l1, l2 = job["headline"][0].upper(), job["headline"][-1].upper()
+    t1 = _line(l1, 980, 190, (255, 255, 255), (215, 215, 215), stroke=14)
+    t2 = _line(l2, 1000, 230, (255, 60, 50), (205, 12, 20), stroke=14)
+    lay = Image.new("RGBA", (W + 300, t1.height + t2.height + 40), (0, 0, 0, 0))
+    lay.alpha_composite(t1, (60, 0))
+    y2 = t1.height - 85
+    br = brush(int(min(1000, t2.width * 0.95)), 46, (222, 22, 30), rng)
+    lay.alpha_composite(br, (100, y2 + t2.height - 62))
+    lay.alpha_composite(t2, (40, y2))
+    lay = lay.crop(lay.getbbox()).rotate(4, resample=Image.BICUBIC, expand=True)
+    hy = int(job.get("headline_y", H - lay.height - 60))
+    c.alpha_composite(lay, ((W - lay.width) // 2, hy))
+    if job.get("arrow"):
+        a = job["arrow"]
+        arrow(c, _xy(a["from"]), _xy(a["to"]), bend=a.get("bend", -0.35))
+    return c
+
+
+TEMPLATES = {"poster": t_poster, "blocks": t_blocks, "tabloid": t_tabloid, "hype": t_hype,
+             "comic": t_comic, "mystery": t_mystery, "split": t_split}
 
 
 def main():
