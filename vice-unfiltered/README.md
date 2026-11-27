@@ -36,6 +36,9 @@ assets/      tools/
 
 ## Owner decisions (newest first)
 
+**2026-11-27**
+- **Tabloid Strip thumbnails retired.** Hype Reaction is the only style in use until the owner's new second style is added.
+
 **2026-11-26**
 - **Foltyn and BenDaDonnn added (GTA 6 x Foltyn; BenDaDonnn x Puffco GTA 6), rules unconfirmed.**
 - **Roster cut to two streamers: Steveeeyyy and IShowSpeed.** Dom, KreekCraft, Dylan Page and SypherPK are dropped. Their studio records are moved to `studio/db_export_removed/` (restorable); their assets (KreekCraft overlay, Dom example edits, GTA VI logo) stay in `assets/` untouched. This overrides the master prompt's Dom/KreekCraft/Steveeeyyy rotation.
@@ -55,7 +58,7 @@ assets/      tools/
 
 | Style | Template | Status | Look |
 |---|---|---|---|
-| Tabloid Strip | `tabloid` | **In use** | Full-bleed portrait, black torn headline slab (Anton), two-panel strip |
+| Tabloid Strip | `tabloid` | Retired 2026-11-27 (kept) | Full-bleed portrait, black torn headline slab (Anton), two-panel strip |
 | Hype Reaction | `hype` | **In use** | The owner's three references: real streamer cut-out with white rim and glow, Montserrat Black Italic headline with a neon key word, brush underline, emoji, bursts, speed lines, optional arrow, inset and logo |
 | Comic Pop Poster | `poster` | Retired (kept) | |
 | Color Block Cover | `blocks` | Retired (kept) | |
