@@ -37,6 +37,8 @@ assets/      tools/
 ## Owner decisions (newest first)
 
 **2026-11-27**
+- **Sad ending (signature move, from the Brendan Ruh reference):** on a real L, hard-cut to a ~7.5 s grey freeze (`freeze` with `"grade": "dark"`, `"fade_out"`, `"sfx_fade"`; vignette kept on the face) with `oh-no-no-no-laugh.mp3`, fading to black.
+- **Caption style approved:** TikTok-style narrator caption, white rounded box, black Montserrat SemiBold, Noto emoji, for the whole clip (`tools/caption_box.py` → job `overlay`). Deadpan and true, ending in 💀💔 on sad endings.
 - **Thumbnails: three new styles from the owner's references** — Comic Chaos (`comic`), Dark Mystery (`mystery`), Reaction Split (`split`). Tabloid Strip and Hype Reaction are retired (kept). Rotate the three per clip and pick the one that fits the moment.
 
 **2026-11-26**

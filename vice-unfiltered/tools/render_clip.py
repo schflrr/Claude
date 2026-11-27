@@ -56,6 +56,7 @@ FONTS = {
 W, H, SR = 1080, 1920, 48000
 INSERTS = ("insert_image", "static", "freeze", "deal_with_it")
 SFX_TARGET_LUFS = -14.0
+SFX_FADES = {}
 
 
 def sh(cmd):
@@ -420,8 +421,11 @@ def main():
             img = resolve(e["file"])
             png = os.path.join(tmp, f"insert_{k}.png")
             scale = insert_png(img, png)
-            ff("-loop", "1", "-framerate", str(fps), "-i", png, "-frames:v", str(n), "-vf", "format=yuv420p,setsar=1",
-               *venc, path)
+            vf = "format=yuv420p,setsar=1"
+            if e.get("fade_out"):  # fade the held frame to black over its last fade_out seconds
+                fo_ = float(e["fade_out"])
+                vf = f"fade=t=out:st={max(0.0, n / fps - fo_):.3f}:d={fo_:.3f}," + vf
+            ff("-loop", "1", "-framerate", str(fps), "-i", png, "-frames:v", str(n), "-vf", vf, *venc, path)
             edl.append(["insert_image", f'{e["at"]:.3f}', f'{e["at"]:.3f}', f"{out_f / fps:.3f}",
                         f"{(out_f + n) / fps:.3f}", os.path.relpath(img, CORE)])
             notes.append(f'Insert {os.path.relpath(img, CORE)} at output {out_f / fps:.3f}s for {n / fps:.3f}s '
@@ -442,6 +446,14 @@ def main():
             im = Image.open(frame).convert("RGB")
             if e.get("bw", True):
                 im = im.convert("L").convert("RGB")
+            if e.get("grade") == "dark":  # owner's reference: grey, high-contrast, crushed blacks, heavy vignette
+                g = np.asarray(im.convert("L"), np.float32) / 255
+                g = np.clip((g - 0.06) / 0.80, 0, 1) ** 1.35
+                yy, xx = np.mgrid[0:H, 0:W]
+                cy, cx = float(e.get("vignette_y", 0.45)) * H, W / 2
+                v = np.sqrt(((xx - cx) / (W * 0.62)) ** 2 + ((yy - cy) / (H * 0.42)) ** 2)
+                g = g * np.clip(1.15 - 0.85 * v ** 1.6, 0.06, 1) * float(e.get("brightness", 0.82))
+                im = Image.fromarray((np.clip(g, 0, 1) * 255).astype(np.uint8)).convert("RGB")
             canvas = im.convert("RGBA")
             cap_top = None
             if e.get("caption"):
@@ -460,8 +472,11 @@ def main():
                              + (" -- WARNING: more than 1.5x upscale, may look soft" if up > 1.5 else ""))
             png = os.path.join(tmp, f"freeze_{k}.png")
             canvas.convert("RGB").save(png)
-            ff("-loop", "1", "-framerate", str(fps), "-i", png, "-frames:v", str(n), "-vf", "format=yuv420p,setsar=1",
-               *venc, path)
+            vf = "format=yuv420p,setsar=1"
+            if e.get("fade_out"):  # fade the held frame to black over its last fade_out seconds
+                fo_ = float(e["fade_out"])
+                vf = f"fade=t=out:st={max(0.0, n / fps - fo_):.3f}:d={fo_:.3f}," + vf
+            ff("-loop", "1", "-framerate", str(fps), "-i", png, "-frames:v", str(n), "-vf", vf, *venc, path)
             edl.append(["freeze", f'{e["at"]:.3f}', f'{e["at"]:.3f}', f"{out_f / fps:.3f}", f"{(out_f + n) / fps:.3f}",
                         f'frame at base {ff_ / fps:.3f}s (source {src_time(ff_):.3f}s); bw={e.get("bw", True)}; '
                         f'caption="{e.get("caption", "")}"'])
@@ -537,6 +552,8 @@ def main():
             places.append((p["out0"] / fps, e["sfx"], e.get("sfx_gain_db", 0), p["n"] / fps, None, "insert"))
         if p["kind"] == "freeze" and e.get("sfx"):
             places.append((p["out0"] / fps, e["sfx"], e.get("sfx_gain_db", 0), p["n"] / fps, None, "freeze"))
+            if e.get("sfx_fade"):
+                SFX_FADES[(round(p["out0"] / fps, 3), e["sfx"])] = float(e["sfx_fade"])
     for e in events:
         if e["type"] == "sfx":
             t = out_frame(fr(e["at"])) / fps
@@ -558,6 +575,8 @@ def main():
         g = (SFX_TARGET_LUFS - L if L is not None else 0) + gdb
         clip = clip * (10 ** (g / 20))
         fi, fo = int(0.005 * SR), int(min(0.15, len(clip) / SR * 0.2) * SR)
+        if (round(t, 3), fname) in SFX_FADES:  # longer musical fade-out requested on a freeze sound
+            fo = int(min(SFX_FADES[(round(t, 3), fname)], len(clip) / SR * 0.6) * SR)
         clip[:fi] *= np.linspace(0, 1, fi, dtype=np.float32)[:, None]
         if fo:
             clip[-fo:] *= np.linspace(1, 0, fo, dtype=np.float32)[:, None]
