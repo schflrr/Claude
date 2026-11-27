@@ -24,7 +24,17 @@ def emoji_img(ch, px):
     tmp = Image.new("RGBA", (300, 160), (0, 0, 0, 0))
     ImageDraw.Draw(tmp).text((8, 8), ch, font=f, embedded_color=True)
     tmp = tmp.crop(tmp.getbbox())
-    return tmp.resize((round(tmp.width * px / tmp.height), px), Image.LANCZOS)
+    tmp = tmp.resize((round(tmp.width * px / tmp.height), px), Image.LANCZOS)
+    # thin dark outline so pale emoji (e.g. the Noto skull) read on the white box
+    from PIL import ImageFilter
+    pad = 4
+    out = Image.new("RGBA", (tmp.width + 2 * pad, tmp.height + 2 * pad), (0, 0, 0, 0))
+    a = Image.new("L", out.size, 0)
+    a.paste(tmp.getchannel("A"), (pad, pad))
+    ring = a.point(lambda v: 255 if v > 90 else 0).filter(ImageFilter.MaxFilter(5)).filter(ImageFilter.GaussianBlur(0.6))
+    out.paste(Image.new("RGBA", out.size, (40, 40, 48, 255)), (0, 0), ring)
+    out.alpha_composite(tmp, (pad, pad))
+    return out
 
 
 def measure(tokens, f, epx):
@@ -49,7 +59,7 @@ def wrap(text, f, epx, max_w):
 
 def render(text, out, width=900, size=64):
     f = ImageFont.truetype(FONT, size)
-    epx = int(size * 1.0)
+    epx = int(size * 1.18)
     lines = wrap(text, f, epx, width - 60)
     asc, desc = f.getmetrics()
     lh = asc + desc + 22
