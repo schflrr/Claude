@@ -16,3 +16,4 @@ BATCH_TRACKER.csv
 # Local only: the studio database/previews and the hand-off doc (personal paths, private links).
 studio/
 HANDOFF_START_HERE.md
+__pycache__/
