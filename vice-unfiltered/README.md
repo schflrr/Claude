@@ -37,6 +37,7 @@ assets/      tools/
 ## Owner decisions (newest first)
 
 **2026-11-27**
+- **Thumbnail prompts rotate the three styles** (Reaction Split = big reaction, Comic Chaos = chaotic/funny fail, Dark Mystery = discovery). Label each ChatGPT prompt with its style and don't repeat one style across a whole batch.
 - **Slow deep voice (approved signature move):** on a fitting real line (a dramatic, deadpan or anticlimax line), slow picture and voice to 0.625x with the pitch dropped (ffmpeg `rubberband=tempo=0.625:pitch=0.62`, `setpts=1.6*PTS`; owner prefers this pace over 0.5x). Use it in future edits where it fits; never to change what was said. Existing library clips stay as they are unless there's a clear opportunity.
 - **Bruh beat:** bruh.jpg + `really-quack.mp3` ("Really?" with the slur cut out and quacked) + TV static is approved for no-campaign clips. Never the uncensored slur sound.
 - **Subtitles never touch other on-screen text** (the caption box, burned-in captions, game UI). `render_clip.py` now refuses a job whose timed subtitle overlaps the caption-box overlay while both are on screen.
