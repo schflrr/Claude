@@ -371,6 +371,15 @@ def main():
         im = Image.open(resolve(st["file"])).convert("RGBA")
         sz = int(st.get("size", 240))
         im.resize((sz, round(im.height * sz / im.width)), Image.LANCZOS).save(st["png"])
+    # guard: timed text (stickers/captions) must not overlap the job overlay (e.g. the caption box) while both show
+    if job.get("overlay"):
+        ov = job["overlay"]; ovh = Image.open(resolve(ov["file"])).height * float(ov.get("width", 700)) / Image.open(resolve(ov["file"])).width
+        oy0, oy1 = float(ov.get("y", 0.3)) * H - ovh / 2, float(ov.get("y", 0.3)) * H + ovh / 2
+        ot0, ot1 = float(ov.get("from", 0)), float(ov.get("to", 1e9))
+        for st in stickers:
+            st_h = Image.open(st["png"]).height; sy = float(st.get("y", 0.4)) * H
+            if st["from"] < ot1 and st["to"] > ot0 and sy + st_h / 2 > oy0 - 12 and sy - st_h / 2 < oy1 + 12:
+                raise SystemExit(f'text overlap: sticker {st["file"]} (y={st.get("y")}) collides with the overlay caption; move it')
     for k, c in enumerate(captions):
         c["png"] = os.path.join(tmp, f"caption_{k}.png")
         caption_png(c["text"], c.get("y", 0.38), c.get("size", 110), c.get("font", "anton"), c["png"], c.get("fill", "#FFFFFF"))
