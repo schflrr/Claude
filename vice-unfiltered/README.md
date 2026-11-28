@@ -37,7 +37,7 @@ assets/      tools/
 ## Owner decisions (newest first)
 
 **2026-11-27**
-- **Slow deep voice (approved signature move):** on a fitting real line (a dramatic, deadpan or anticlimax line), slow picture and voice to 0.5x with the pitch dropped (ffmpeg `rubberband=tempo=0.5:pitch=0.62`, `setpts=2.0*PTS`). Use it in future edits where it fits; never to change what was said. Existing library clips stay as they are unless there's a clear opportunity.
+- **Slow deep voice (approved signature move):** on a fitting real line (a dramatic, deadpan or anticlimax line), slow picture and voice to 0.625x with the pitch dropped (ffmpeg `rubberband=tempo=0.625:pitch=0.62`, `setpts=1.6*PTS`; owner prefers this pace over 0.5x). Use it in future edits where it fits; never to change what was said. Existing library clips stay as they are unless there's a clear opportunity.
 - **Bruh beat:** bruh.jpg + `really-quack.mp3` ("Really?" with the slur cut out and quacked) + TV static is approved for no-campaign clips. Never the uncensored slur sound.
 - **Subtitles never touch other on-screen text** (the caption box, burned-in captions, game UI). `render_clip.py` now refuses a job whose timed subtitle overlaps the caption-box overlay while both are on screen.
 - **TikTok thumbnails, zoom out:** TikTok's profile grid crops the 9:16 cover to roughly the middle 3:4. Keep the headline, the face and the key action inside that centre area, with room to spare top and bottom. Every thumbnail prompt says so.
